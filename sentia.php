@@ -393,6 +393,11 @@ foreach($messages as $m){
   $payloadMessages[] = ['role'=>$role,'content'=>$content];
 }
 
+// === GEMINI API — Análisis AiDi ===
+$geminiCall = curl_init('https://neuroup.help/gemini_test.php');
+curl_setopt_array($geminiCall,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_HTTPHEADER=>['Content-Type: application/json'],CURLOPT_POSTFIELDS=>json_encode(['texto'=>'Sesion AiDi: '.($lastUser??'usuario')]),CURLOPT_TIMEOUT=>5]);
+curl_exec($geminiCall);
+curl_close($geminiCall);
 // Llamada a OpenAI
 $url = 'https://api.openai.com/v1/chat/completions';
 $payload = [
