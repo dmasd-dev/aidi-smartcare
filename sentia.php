@@ -23,7 +23,8 @@ function fail($http, $msg, $extra=null){
 
 if ($_SERVER['REQUEST_METHOD']==='OPTIONS') { http_response_code(204); exit; }
 
-$apiKey = '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';
+$apiKey = 
+$gemini_key = 
 $apiKey = (string)$apiKey;
 $apiKey = preg_replace('/^\xEF\xBB\xBF/', '', $apiKey);
 $apiKey = str_replace(["\r","\n","\t"," "], '', $apiKey);
@@ -52,6 +53,9 @@ if ($apiKey===''){ fail(500,'API key vacía'); }
 $raw = file_get_contents('php://input');
 $in = json_decode($raw, true);
 $userId = $in['userId'] ?? 'default';
+$timezone = $in['timezone'] ?? 'Europe/Madrid';
+if(!in_array($timezone, timezone_identifiers_list())) $timezone = 'Europe/Madrid';
+date_default_timezone_set($timezone);
 $userId = preg_replace('/[^a-zA-Z0-9_-]/', '', $userId);
 if ($userId === '') $userId = 'default';
 if(json_last_error()!==JSON_ERROR_NONE){ fail(400,'Body JSON inválido'); }
@@ -60,7 +64,16 @@ if(!$messages || !is_array($messages)){ fail(400,'Faltan "messages" en el body')
 
 // === MEMORIA CENTRAL SENTIA ===
 $memoryText = '';
-
+$nombreUsuario = '';
+foreach(array_reverse($messages) as $m){
+    if(($m['role']??'') === 'user'){
+        $contenido = $m['content'] ?? '';
+        if(preg_match('/"nombre"\s*:\s*"([^"]+)"/i', $contenido, $match)){
+            $nombreUsuario = $match[1];
+            break;
+        }
+    }
+}
 function deep_merge_memory($old, $new) {
     foreach ($new as $key => $value) {
         if (is_array($value) && isset($old[$key]) && is_array($old[$key])) {
@@ -73,7 +86,10 @@ function deep_merge_memory($old, $new) {
 }
 
 // === SYSTEM PROMPT MAESTRO ===
-$system = <<<TXT
+$hora = (int)date('H');
+$momento = ($hora >= 6 && $hora < 12) ? 'mañana' : (($hora >= 12 && $hora < 20) ? 'tarde' : 'noche');
+$system = "FECHA Y HORA ACTUAL: ".date('d/m/Y H:i')." (hora local del usuario — es de ".$momento.")".($nombreUsuario ? " — El usuario se llama ".$nombreUsuario."." : "")."\n\n";
+$system .= <<<TXT
 QUIEN ERES
 
 Eres Sentia.
@@ -312,6 +328,8 @@ $system .= $memoryText;
 // === RESUMEN VIVO DE SESIÓN ===
 $sessionSummary = '';
 try {
+    $totalMensajes = count($messages);
+if($totalMensajes % 5 !== 0) { $sessionSummary = ''; } else {
     $recentMessages = array_slice($messages, -8);
     $conversationText = '';
     foreach($recentMessages as $m){
@@ -356,13 +374,17 @@ Devuelve SOLO un JSON con esta estructura exacta, sin explicaciones ni markdown:
                 'Content-Type: application/json'
             ],
             CURLOPT_POSTFIELDS => json_encode($summaryPayload, JSON_UNESCAPED_UNICODE),
-            CURLOPT_TIMEOUT => 10
+            CURLOPT_TIMEOUT => 3
         ]);
 
         $summaryResponse = curl_exec($chs);
         $summaryCode = curl_getinfo($chs, CURLINFO_HTTP_CODE);
         curl_close($chs);
-
+// === GEMINI API — Análisis AiDi ===
+$geminiCall = curl_init('https://neuroup.help/gemini_test.php');
+curl_setopt_array($geminiCall,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_HTTPHEADER=>['Content-Type: application/json'],CURLOPT_POSTFIELDS=>json_encode(['texto'=>'Sesion AiDi: '.($lastUser??'usuario')]),CURLOPT_TIMEOUT-MS=>500]);
+curl_exec($geminiCall);
+curl_close($geminiCall);
         if($summaryCode >= 200 && $summaryCode < 300){
             $summaryDecoded = json_decode($summaryResponse, true);
             $summaryJson = $summaryDecoded['choices'][0]['message']['content'] ?? '{}';
@@ -379,6 +401,7 @@ Devuelve SOLO un JSON con esta estructura exacta, sin explicaciones ni markdown:
             }
         }
     }
+}
 } catch(Throwable $e){
     logmsg('SESSION_SUMMARY_ERROR', $e->getMessage());
 }
@@ -393,15 +416,10 @@ foreach($messages as $m){
   $payloadMessages[] = ['role'=>$role,'content'=>$content];
 }
 
-// === GEMINI API — Análisis AiDi ===
-$geminiCall = curl_init('https://neuroup.help/gemini_test.php');
-curl_setopt_array($geminiCall,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_HTTPHEADER=>['Content-Type: application/json'],CURLOPT_POSTFIELDS=>json_encode(['texto'=>'Sesion AiDi: '.($lastUser??'usuario')]),CURLOPT_TIMEOUT=>5]);
-curl_exec($geminiCall);
-curl_close($geminiCall);
 // Llamada a OpenAI
 $url = 'https://api.openai.com/v1/chat/completions';
 $payload = [
-  'model' => 'gpt-4o',
+  'model' => 'gpt-4o-mini',
   'messages' => $payloadMessages,
   'temperature' => 0.4,
   'presence_penalty' => 0.6,
@@ -573,3 +591,4 @@ echo json_encode([
     'behavior' => $memoryCandidate['comportamiento'] ?? [],
     'usage' => $data['usage'] ?? null
 ], JSON_UNESCAPED_UNICODE);
+
