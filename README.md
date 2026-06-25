@@ -28,4 +28,12 @@ AiDi is a modular assisted health device that combines precision medication disp
 
 ## Build with Gemini XPRIZE Hackathon 2026
 
-Submitted to the Build with Gemini XPRIZE — Category: Education & Human Potential
+Submitted to the Build with Gemini XPRIZE — Category: Education & Human Potential ## Latest Updates — June 25, 2026
+
+- Real-time timezone detection — Sentia adapts to any country automatically
+- Time-of-day personalization — different tone for morning, afternoon and night
+- Dynamic opening messages — never repeats the same greeting
+- User name recognition from local memory
+- Session summary optimized — response time reduced from 8s to 1.57s
+- Gemini 2.5 Flash integrated via microservice (gemini_test.php)
+- Emotional diary (diario emocional) — private, persistent, accessible from chat
