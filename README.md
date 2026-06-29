@@ -12,6 +12,7 @@ AiDi is a modular assisted health device that combines precision medication disp
 - **Proactive safety network** — SOS button, fall detection camera, voice keyword recognition, hybrid Wi-Fi + LTE-M connectivity
 - **Sentia AI companion** — Emotional AI powered by Gemini API, Google Cloud TTS (es-ES-Wavenet-C)
 - **Smart escalation protocol** — User alert → family notification → video call → automatic voice call
+- - **Proactive push notifications** — Daily emotional check-in via Web Push (VAPID), scheduled automatically at user-chosen time
 
 ## Technology Stack
 
