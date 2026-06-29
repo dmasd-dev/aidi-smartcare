@@ -36,5 +36,5 @@ Submitted to the Build with Gemini XPRIZE — Category: Education & Human Potent
 - Dynamic opening messages — never repeats the same greeting
 - User name recognition from local memory
 - Session summary optimized — response time reduced from 8s to 1.57s
-- Gemini 2.5 Flash integrated via microservice (gemini_test.php)
+- Gemini 2.5 Flash as main conversational engine (sentia_gemini.php)
 - Emotional diary (diario emocional) — private, persistent, accessible from chat
