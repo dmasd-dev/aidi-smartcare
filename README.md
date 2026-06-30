@@ -13,6 +13,7 @@ AiDi is a modular assisted health device that combines precision medication disp
 - **Sentia AI companion** — Emotional AI powered by Gemini API, Google Cloud TTS (es-ES-Wavenet-C)
 - **Smart escalation protocol** — User alert → family notification → video call → automatic voice call
 - - **Proactive push notifications** — Daily emotional check-in via Web Push (VAPID), scheduled automatically at user-chosen time
+  - **AiDi Operational Protocols** — Sentia integrates 4 real-time safety protocols: Silence Detection (missed dose alert), Confusion Intervention (off-schedule access), Trend Analysis (adverse reaction reporting), and Guardian Mode (inactivity emergency escalation)
 
 ## Technology Stack
 
