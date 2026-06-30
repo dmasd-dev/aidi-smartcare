@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD']==='OPTIONS') { http_response_code(204); exit; }
 $apiKey = 'OPENAI_KEY_AQUI';
 $gemini_key = '';
 $apiKey = (string)$apiKey;
-$apiKey = preg_replace('/^\xEF\xBB\xBF/', '', $apiKey);
+$apiKey = preg_replace('/^\xEF\xBB\xBF/', '', $apiKey); 
 $apiKey = str_replace(["\r","\n","\t"," "], '', $apiKey);
 $apiKey = trim($apiKey);
 
