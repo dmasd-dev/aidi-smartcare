@@ -24,7 +24,7 @@ function fail($http, $msg, $extra=null){
 if ($_SERVER['REQUEST_METHOD']==='OPTIONS') { http_response_code(204); exit; }
 
 $apiKey = 'OPENAI_KEY_AQUI';
-$gemini_key = 'AQ.Ab8RN6JjkWB26b9brsptq3ML4q8OICVoPVkGnaS2fo91WJud6Q';
+$gemini_key = '';
 $apiKey = (string)$apiKey;
 $apiKey = preg_replace('/^\xEF\xBB\xBF/', '', $apiKey);
 $apiKey = str_replace(["\r","\n","\t"," "], '', $apiKey);
